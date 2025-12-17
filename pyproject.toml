@@ -10,7 +10,7 @@ requires-python = ">=3.10"
 dependencies = []
 
 [project.scripts]
-oskit = "oskit:main"
+ipscan = "oskit.ipscan:main"
 
 [build-system]
 requires = ["hatchling"]
