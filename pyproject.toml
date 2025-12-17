@@ -1,0 +1,17 @@
+[project]
+name = "oskit"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Michal Pech", email = "michal.pech@radalytica.com" }
+]
+requires-python = ">=3.13"
+dependencies = []
+
+[project.scripts]
+oskit = "oskit:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
