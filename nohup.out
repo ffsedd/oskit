@@ -1,0 +1,9 @@
+libva info: VA-API version 1.14.0
+libva info: Trying to open /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so
+libva info: Found init function __vaDriverInit_1_14
+libva error: /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so init failed
+libva info: va_openDriver() returns 1
+libva info: Trying to open /usr/lib/x86_64-linux-gnu/dri/i965_drv_video.so
+libva info: Found init function __vaDriverInit_1_10
+libva info: va_openDriver() returns 0
+[ERROR glean_core::metrics::ping] Invalid reason code idchange for ping sync
