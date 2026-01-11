@@ -1,8 +1,9 @@
 [project]
 name = "oskit"
 version = "0.1.0"
-description = "Add your description here"
+description = "Collection of OS tools"
 readme = "README.md"
+license = {text = "MIT"}
 authors = [
     { name = "Michal Pech", email = "michal.pech@radalytica.com" }
 ]
@@ -11,7 +12,17 @@ dependencies = []
 
 [project.scripts]
 ipscan = "oskit.ipscan:main"
+filerenamer = "oskit.cli.file_renamer_cli:main"
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "src"
+]
