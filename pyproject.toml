@@ -13,6 +13,7 @@ dependencies = []
 [project.scripts]
 ipscan = "oskit.ipscan:main"
 filerenamer = "oskit.cli.file_renamer_cli:main"
+soundtoggle = "oskit.sound_output_toggle:main"
 
 [build-system]
 requires = ["setuptools>=61", "wheel"]

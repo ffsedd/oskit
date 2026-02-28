@@ -2,10 +2,15 @@
 import subprocess
 import platform
 import logging
+import os
 
-SINK = 0  # your sink number
 
-# Configure logging
+# Ensure Pulse can be reached when launched via shortcut
+os.environ.setdefault(
+    "XDG_RUNTIME_DIR",
+    f"/run/user/{os.getuid()}"
+)
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s"
@@ -14,78 +19,108 @@ logging.basicConfig(
 class PulseAudioError(Exception):
     pass
 
-def check_platform():
-    if platform.system() != "Linux":
-        raise PulseAudioError("This script only works on Linux with PulseAudio.")
 
-def get_sinks_output() -> str:
-    """Capture the full output of `pactl list sinks`."""
+def check_platform() -> None:
+    if platform.system() != "Linux":
+        raise PulseAudioError("This script only works on Linux.")
+
+
+def run_pactl(*args: str) -> str:
     try:
         result = subprocess.run(
-            ["pactl", "list", "sinks"],
+            ["pactl", *args],
             text=True,
             capture_output=True,
-            check=True
+            check=True,
         )
         return result.stdout
     except subprocess.CalledProcessError as e:
-        raise PulseAudioError(f"Failed to list sinks: {e}")
+        raise PulseAudioError(f"pactl {' '.join(args)} failed: {e}")
 
-def get_active_port(sinks_output: str, sink: int) -> str:
-    """Parse the active port for a given sink."""
-    lines = sinks_output.splitlines()
-    found_sink = False
-    for line in lines:
-        line = line.strip()
-        if line.startswith(f"Sink #{sink}"):
-            found_sink = True
-        elif found_sink and line.startswith("Active Port:"):
+
+def get_default_sink_name() -> str:
+    output = run_pactl("info")
+    for line in output.splitlines():
+        if line.startswith("Default Sink:"):
             return line.split(":", 1)[1].strip()
-    raise PulseAudioError("Could not detect active port. Make sure PulseAudio is running.")
+    raise PulseAudioError("Could not determine default sink.")
 
-def toggle_port(current_port: str) -> str:
-    """Decide the new port to switch to."""
-    return "analog-output-headphones" if current_port == "analog-output-lineout" else "analog-output-lineout"
 
-def set_sink_port(sink: int, port: str):
-    try:
-        subprocess.run(["pactl", "set-sink-port", str(sink), port], check=True)
-        logging.info(f"Switched sink #{sink} to {port}")
-    except subprocess.CalledProcessError as e:
-        raise PulseAudioError(f"Failed to set sink port: {e}")
+def get_sink_index_and_port(sink_name: str) -> tuple[int, str]:
+    output = run_pactl("list", "sinks")
 
-def move_all_streams(sink: int):
-    """Move all current streams to the new sink."""
-    try:
-        result = subprocess.run(
-            ["pactl", "list", "short", "sink-inputs"],
-            text=True,
-            capture_output=True,
-            check=True
-        )
-        streams = result.stdout.splitlines()
-        if not streams:
-            logging.info("No active streams to move.")
-        for line in streams:
-            stream_id = line.split()[0]
-            subprocess.run(["pactl", "move-sink-input", stream_id, str(sink)], check=True)
-            logging.debug(f"Moved stream {stream_id} to sink {sink}")
-    except subprocess.CalledProcessError as e:
-        raise PulseAudioError(f"Failed to move sink inputs: {e}")
+    current_index: int | None = None
+    current_name: str | None = None
+    active_port: str | None = None
 
-def main():
+    for raw in output.splitlines():
+        line = raw.strip()
+
+        if line.startswith("Sink #"):
+            current_index = int(line.split("#")[1])
+            current_name = None
+            active_port = None
+
+        elif line.startswith("Name:"):
+            current_name = line.split(":", 1)[1].strip()
+
+        elif line.startswith("Active Port:"):
+            active_port = line.split(":", 1)[1].strip()
+
+            if current_name == sink_name and current_index is not None:
+                return current_index, active_port
+
+    raise PulseAudioError("Could not detect active port for default sink.")
+
+
+def toggle_port_name(current: str) -> str:
+    if current == "analog-output-lineout":
+        return "analog-output-headphones"
+    if current == "analog-output-headphones":
+        return "analog-output-lineout"
+
+    raise PulseAudioError(f"Unsupported port: {current}")
+
+
+def set_sink_port(index: int, port: str) -> None:
+    run_pactl("set-sink-port", str(index), port)
+    logging.info(f"Switched sink #{index} to {port}")
+
+
+def move_all_streams(index: int) -> None:
+    output = run_pactl("list", "short", "sink-inputs")
+    lines = output.splitlines()
+
+    if not lines:
+        logging.info("No active streams to move.")
+        return
+
+    for line in lines:
+        stream_id = line.split()[0]
+        run_pactl("move-sink-input", stream_id, str(index))
+        logging.debug(f"Moved stream {stream_id} to sink {index}")
+
+
+def main() -> None:
     check_platform()
-    sinks_output = get_sinks_output()
-    current = get_active_port(sinks_output, SINK)
-    logging.info(f"Current active port: {current}")
-    new_port = toggle_port(current)
-    set_sink_port(SINK, new_port)
-    move_all_streams(SINK)
+
+    sink_name = get_default_sink_name()
+    logging.info(f"Default sink: {sink_name}")
+
+    index, current_port = get_sink_index_and_port(sink_name)
+    logging.info(f"Current active port: {current_port}")
+
+    new_port = toggle_port_name(current_port)
+    set_sink_port(index, new_port)
+
+    move_all_streams(index)
+
     logging.info(f"Toggle complete. Active port is now: {new_port}")
+
 
 if __name__ == "__main__":
     try:
         main()
     except PulseAudioError as e:
         logging.error(e)
-
+        raise
