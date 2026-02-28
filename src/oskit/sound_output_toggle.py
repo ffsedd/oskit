@@ -4,6 +4,17 @@ import platform
 import logging
 import os
 
+"""
+If line out sound is muted with headphones connected:
+    alsamixer
+    F6 - select card
+    right key - select Auto-Mute
+    up - disable it
+    Esc
+
+"""
+
+
 
 # Ensure Pulse can be reached when launched via shortcut
 os.environ.setdefault(
