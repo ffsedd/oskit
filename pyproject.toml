@@ -8,10 +8,13 @@ authors = [
     { name = "Michal Pech", email = "michal.pech@radalytica.com" }
 ]
 requires-python = ">=3.10"
-dependencies = []
+dependencies = [
+    "pyserial>=3.5",
+]
 
 [project.scripts]
 ipscan = "oskit.ipscan:main"
+serialscan = "oskit.serialscan:main"
 filerenamer = "oskit.cli.file_renamer_cli:main"
 soundtoggle = "oskit.sound_output_toggle:main"
 
