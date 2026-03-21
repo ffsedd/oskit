@@ -17,7 +17,7 @@ ipscan = "oskit.ipscan:main"
 serialscan = "oskit.serialscan:main"
 filerenamer = "oskit.cli.file_renamer_cli:main"
 soundtoggle = "oskit.sound_output_toggle:main"
-shutdowndelayed = "oskit.shutdown_delayed:main"
+pwr = "oskit.pwr:main"
 
 [build-system]
 requires = ["setuptools>=61", "wheel"]
