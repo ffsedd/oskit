@@ -7,6 +7,7 @@ import fcntl
 import subprocess
 
 lock_path = f"/run/user/{os.getuid()}/sleep-lock"
+DELAY = 3
 
 # open lock file
 lock_file = open(lock_path, "w")
@@ -33,7 +34,7 @@ if "suspend" in result.stdout or "shutdown" in result.stdout:
     sys.exit(1)
 
 # countdown
-for i in range(5, 0, -1):
+for i in range(DELAY, 0, -1):
     print(f"Suspending in {i}...")
     time.sleep(1)
 
