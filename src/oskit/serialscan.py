@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
-import serial
 import time
+
+import serial
 
 PORT = "/dev/ttyUSB0"
 BAUDS = [115200, 57600, 38400, 19200, 9600]
 SECONDS_PER_BAUD = 3
 ASCII_THRESHOLD = 0.7
 
+
 def ascii_ratio(data: bytes) -> float:
     if not data:
         return 0.0
-    printable = sum(32 <= b <= 126 or b in (9,10,13) for b in data)
+    printable = sum(32 <= b <= 126 or b in (9, 10, 13) for b in data)
     return printable / len(data)
 
 
@@ -59,9 +61,11 @@ def main():
     if detected_baud:
         print("\nDetected likely readable baud rate:", detected_baud)
         print("You can set the port to this baud using:")
-        print(f"  stty -F {PORT} {detected_baud} cs8 -cstopb -parenb  # set baud for USB-serial")
+        print(
+            f"  stty -F {PORT} {detected_baud} cs8 -cstopb -parenb  # set baud for USB-serial"
+        )
         print(f"  cat {PORT} ")
-        print(f"  cutecom ")
+        print("  cutecom ")
     else:
         print("\nNo readable baud rate detected.")
 

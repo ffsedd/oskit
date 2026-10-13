@@ -1,20 +1,23 @@
 # tests/test_file_renamer.py
+
 import pytest
-from pathlib import Path
+
 from oskit.file_renamer import (
-    parse_mapping,
     _parse_rule,
     apply_rules,
     build_plan,
-    compute_final_plan,
     commit_plan,
+    compute_final_plan,
+    parse_mapping,
 )
 
 # ---------------- Tests for pure functions ----------------
 
+
 def test_parse_mapping():
     rules = parse_mapping(["a:b", "x:y"])
     assert rules == [("a", "b"), ("x", "y")]
+
 
 def test_parse_rule_invalid():
     with pytest.raises(ValueError):
@@ -22,12 +25,14 @@ def test_parse_rule_invalid():
     with pytest.raises(ValueError):
         _parse_rule(":empty-old")
 
+
 def test_apply_rules():
     rules = [("foo", "bar"), ("baz", "qux")]
     assert apply_rules("foo_file.txt", rules) == "bar_file.txt"
     assert apply_rules("baz_file.txt", rules) == "qux_file.txt"
     # No match returns original
     assert apply_rules("nochange.txt", rules) == "nochange.txt"
+
 
 def test_build_plan(tmp_path):
     # tmp_path is a pytest fixture for temporary directories
@@ -40,6 +45,7 @@ def test_build_plan(tmp_path):
     plan = build_plan(files, rules)
     expected = [(f1, tmp_path / "x.txt"), (f2, tmp_path / "y.txt")]
     assert plan == expected
+
 
 def test_compute_final_plan(tmp_path):
     f1 = tmp_path / "a.txt"
@@ -56,6 +62,7 @@ def test_compute_final_plan(tmp_path):
 
 
 # ---------------- Tests for swap logic ----------------
+
 
 def test_commit_plan_swap(tmp_path):
     # Create two files to swap
@@ -84,6 +91,7 @@ def test_commit_plan_swap(tmp_path):
 
 # ---------------- Dry-run test ----------------
 
+
 def test_dry_run(tmp_path):
     f1 = tmp_path / "a.txt"
     f1.write_text("data")
@@ -96,4 +104,3 @@ def test_dry_run(tmp_path):
     assert unmatched == 0
     assert skipped == 0
     assert final_plan[0][1].name == "x.txt"
-

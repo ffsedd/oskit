@@ -1,12 +1,13 @@
 # src/oskit/file_renamer.py
-from pathlib import Path
 import json
 import logging
+from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
 # ---------------- Pure functions ----------------
+
 
 def parse_mapping(mapping_list):
     """Return ordered list of (old, new) rules."""
@@ -52,7 +53,9 @@ def validate_plan(plan, existing_paths=None):
 
     for src, dst in plan:
         if dst in targets:
-            raise ValueError(f"Collision: {src.name} and {targets[dst].name} both map to {dst.name}")
+            raise ValueError(
+                f"Collision: {src.name} and {targets[dst].name} both map to {dst.name}"
+            )
         if dst in existing_paths and dst not in sources:
             raise ValueError(f"Target already exists: {dst}")
         targets[dst] = src
@@ -81,6 +84,7 @@ def compute_final_plan(plan):
 
 # ---------------- Impure / side-effect functions ----------------
 
+
 def commit_plan(plan, rename_func=None, verbose=True):
     """
     Execute a swap-safe rename plan.
@@ -105,7 +109,9 @@ def commit_plan(plan, rename_func=None, verbose=True):
             logging.info(f"Renamed: {tmp} -> {dst}")
 
 
-def batch_rename(folder, rules, apply=False, recursive=False, log_path=None, verbose=True):
+def batch_rename(
+    folder, rules, apply=False, recursive=False, log_path=None, verbose=True
+):
     """
     High-level batch rename.
     Returns a summary dict.
@@ -178,4 +184,6 @@ def undo_rename(log_file, rename_func=None, verbose=True):
             logging.info(f"Restored: {src} -> {dst}")
 
     if verbose:
-        logging.info(f"\nUndo completed. Restored {restored_count}/{len(entries)}, skipped {skipped_count}.")
+        logging.info(
+            f"\nUndo completed. Restored {restored_count}/{len(entries)}, skipped {skipped_count}."
+        )

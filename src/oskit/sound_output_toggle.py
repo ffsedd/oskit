@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-import subprocess
-import platform
 import logging
 import os
+import platform
+import subprocess
 
 """
 If line out sound is muted with headphones connected:
@@ -15,17 +15,13 @@ If line out sound is muted with headphones connected:
 """
 
 
-
 # Ensure Pulse can be reached when launched via shortcut
-os.environ.setdefault(
-    "XDG_RUNTIME_DIR",
-    f"/run/user/{os.getuid()}"
-)
+os.environ.setdefault("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
 
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(message)s"
+    level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s"
 )
+
 
 class PulseAudioError(Exception):
     pass

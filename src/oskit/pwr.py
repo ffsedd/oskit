@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 
+import fcntl
 import os
+import subprocess
 import sys
 import time
-import fcntl
-import subprocess
 
 # ---------------- CONFIG ----------------
 DEFAULT_ACTION = "suspend"
@@ -64,7 +64,7 @@ def check_systemd():
         ["systemctl", "list-jobs"],
         stdout=subprocess.PIPE,
         stderr=subprocess.DEVNULL,
-        text=True
+        text=True,
     )
 
     if any(x in result.stdout for x in ["suspend", "shutdown", "poweroff", "reboot"]):
@@ -98,6 +98,6 @@ def main():
         print("\nCancelled by user.")
         sys.exit(130)
 
-if __name__ == "__main__":
-	main()
 
+if __name__ == "__main__":
+    main()

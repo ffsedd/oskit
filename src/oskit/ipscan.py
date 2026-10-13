@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """Fast LAN discovery with aligned columns and hostname last, using argparse."""
 
+import argparse
 import socket
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
-import argparse
 
 PORTS = {
     "web": (80, 443),
     "smb": (445,),
     "rdp": (3389,),
-    "nx":  (4000,),
+    "nx": (4000,),
     "ssh": (22,),
 }
 
@@ -31,11 +31,14 @@ def guess_subnet() -> str:
 
 
 def ping(ip: str) -> bool:
-    return subprocess.call(
-        ["ping", "-c", "1", "-W", "1", ip],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
-    ) == 0
+    return (
+        subprocess.call(
+            ["ping", "-c", "1", "-W", "1", ip],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        == 0
+    )
 
 
 def arp_mac(ip: str) -> str:
@@ -102,10 +105,13 @@ def scan(ip: str, timeout: float) -> None:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Fast LAN discovery with service codes.")
+    parser = argparse.ArgumentParser(
+        description="Fast LAN discovery with service codes."
+    )
     parser.add_argument(
-        "-s", "--subnet",
-        help="Subnet to scan (e.g., 192.168.1). If omitted, guessed from local IP."
+        "-s",
+        "--subnet",
+        help="Subnet to scan (e.g., 192.168.1). If omitted, guessed from local IP.",
     )
     parser.add_argument("-t", "--threads", type=int, default=255)
     parser.add_argument("--timeout", type=float, default=0.4)
@@ -122,4 +128,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

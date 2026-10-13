@@ -75,6 +75,7 @@ def run_command(
 
     return result.stdout
 
+
 def check_dependencies() -> None:
     """Verify required external programs exist."""
     missing = [cmd for cmd in REQUIRED_COMMANDS if shutil.which(cmd) is None]
@@ -308,37 +309,25 @@ def assess_health(smart: SmartData) -> tuple[str, tuple[str, ...]]:
     )
 
     critical = [
-        name
-        for name, value in critical_attributes
-        if value is not None and value > 0
+        name for name, value in critical_attributes if value is not None and value > 0
     ]
 
     if critical:
-        return "WARNING", tuple(
-            f"{name}: non-zero" for name in critical
-        )
+        return "WARNING", tuple(f"{name}: non-zero" for name in critical)
 
     lifetime = smart.lifetime_percent
 
     if lifetime is not None:
         if lifetime <= 10:
-            return "CRITICAL", (
-                f"only {lifetime:.0f}% lifetime remaining",
-            )
+            return "CRITICAL", (f"only {lifetime:.0f}% lifetime remaining",)
 
         if lifetime <= 20:
-            return "WARNING", (
-                f"only {lifetime:.0f}% lifetime remaining",
-            )
+            return "WARNING", (f"only {lifetime:.0f}% lifetime remaining",)
 
         if lifetime >= 80:
-            reasons.append(
-                f"{lifetime:.0f}% estimated lifetime remaining"
-            )
+            reasons.append(f"{lifetime:.0f}% estimated lifetime remaining")
         else:
-            reasons.append(
-                f"{lifetime:.0f}% estimated lifetime remaining"
-            )
+            reasons.append(f"{lifetime:.0f}% estimated lifetime remaining")
 
     if smart.temperature_c is not None:
         if smart.temperature_c >= 70:
@@ -382,14 +371,10 @@ def assess_performance(
         reasons.append(f"{write:.0f} MiB/s sequential write")
 
     if benchmark_result.rand_read_iops is not None:
-        reasons.append(
-            f"{benchmark_result.rand_read_iops * 1000:.0f} 4K read IOPS"
-        )
+        reasons.append(f"{benchmark_result.rand_read_iops * 1000:.0f} 4K read IOPS")
 
     if benchmark_result.rand_write_iops is not None:
-        reasons.append(
-            f"{benchmark_result.rand_write_iops * 1000:.0f} 4K write IOPS"
-        )
+        reasons.append(f"{benchmark_result.rand_write_iops * 1000:.0f} 4K write IOPS")
 
     read_ok = (
         benchmark_result.seq_read_mib is None
@@ -402,8 +387,7 @@ def assess_performance(
     )
 
     random_read_ok = (
-        benchmark_result.rand_read_iops is None
-        or benchmark_result.rand_read_iops >= 30
+        benchmark_result.rand_read_iops is None or benchmark_result.rand_read_iops >= 30
     )
 
     random_write_ok = (
@@ -492,28 +476,16 @@ def print_report(
     print(f"  Status:        {assessment.performance}")
 
     if benchmark_result.seq_read_mib is not None:
-        print(
-            f"  Seq. read:     "
-            f"{benchmark_result.seq_read_mib:.0f} MiB/s"
-        )
+        print(f"  Seq. read:     {benchmark_result.seq_read_mib:.0f} MiB/s")
 
     if benchmark_result.seq_write_mib is not None:
-        print(
-            f"  Seq. write:    "
-            f"{benchmark_result.seq_write_mib:.0f} MiB/s"
-        )
+        print(f"  Seq. write:    {benchmark_result.seq_write_mib:.0f} MiB/s")
 
     if benchmark_result.rand_read_iops is not None:
-        print(
-            f"  4K read:       "
-            f"{benchmark_result.rand_read_iops * 1000:.0f} IOPS"
-        )
+        print(f"  4K read:       {benchmark_result.rand_read_iops * 1000:.0f} IOPS")
 
     if benchmark_result.rand_write_iops is not None:
-        print(
-            f"  4K write:      "
-            f"{benchmark_result.rand_write_iops * 1000:.0f} IOPS"
-        )
+        print(f"  4K write:      {benchmark_result.rand_write_iops * 1000:.0f} IOPS")
 
     print()
     print("RECOMMENDATION")

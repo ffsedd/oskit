@@ -1,27 +1,28 @@
 # src/oskit/cli/file_renamer_cli.py
-import sys
 import argparse
-from datetime import datetime
-from oskit.file_renamer import parse_mapping, batch_rename, undo_rename
 import logging
+import sys
+from datetime import datetime
+
+from oskit.file_renamer import batch_rename, parse_mapping, undo_rename
+
 
 def main():
     parser = argparse.ArgumentParser(
         description="Batch rename files using mapping rules (dry-run by default)."
     )
     parser.add_argument("folder", nargs="?")
-    parser.add_argument("--map", action="append", default=[], help="Rename rule old:new")
+    parser.add_argument(
+        "--map", action="append", default=[], help="Rename rule old:new"
+    )
     parser.add_argument("--recursive", "-r", action="store_true")
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--undo", metavar="LOG_FILE")
     parser.add_argument(
-        "--log",
-        default=f"rename_log_{datetime.now():%Y%m%d_%H%M%S}.json"
+        "--log", default=f"rename_log_{datetime.now():%Y%m%d_%H%M%S}.json"
     )
     parser.add_argument(
-        "--verbose", "-v",
-        action="store_true",
-        help="Enable verbose output"
+        "--verbose", "-v", action="store_true", help="Enable verbose output"
     )
 
     args = parser.parse_args()
@@ -49,7 +50,7 @@ def main():
             apply=args.apply,
             recursive=args.recursive,
             log_path=args.log,
-            verbose=args.verbose
+            verbose=args.verbose,
         )
 
         print("\nSummary:")
